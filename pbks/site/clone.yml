@@ -1,0 +1,19 @@
+---
+- hosts: all
+  tasks:
+  - name: Clone repository
+    git:
+      repo: "{{ repo }}"
+      version: master
+      dest: "{{ hosts_directory }}/{{ domain }}"
+      key_file: "{{ home_directory }}/.ssh/{{ domain }}.deploy.key"
+      accept_hostkey: yes
+      force: yes
+
+  # Set some settings in ~/.gitconfig
+  - name: Ignore file modes in git repository
+    git_config:
+      scope: local
+      name: core.fileMode
+      repo: "{{ hosts_directory }}/{{ domain }}"
+      value: false

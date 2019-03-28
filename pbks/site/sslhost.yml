@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: Create SSL host for nginx
+    notify: Reload nginx
+    template:
+      src: ../../templates/hostssl.j2
+      dest: "/etc/nginx/sites-available/{{ domain }}"
+
+  - name: Activate SSL host
+    notify: Reload nginx
+    file:
+      src: "/etc/nginx/sites-available/{{ domain }}"
+      path: "/etc/nginx/sites-enabled/{{ domain }}"
+      state: link
+
+  handlers:
+  - name: Reload nginx
+    service:
+      name: nginx
+      state: reloaded

@@ -1,0 +1,47 @@
+# HTTPS only and WWW redirects on 80 port
+server {
+	listen 80;
+	server_name {{ domain }} www.{{ domain }};
+	return 301 https://{{ domain }}$request_uri;
+}
+
+# WWW redirect on 443 port
+server {
+	listen 443 ssl;
+	server_name www.{{ domain }};
+
+	ssl_certificate {{ home_directory }}/.acme.sh/{{ domain }}/{{ domain }}.cer;
+    ssl_certificate_key {{ home_directory }}/.acme.sh/{{ domain }}/{{ domain }}.key;
+
+	return 301 https://{{ domain }}$request_uri;
+}
+
+# HTTPS server
+server {
+    listen 443 ssl;
+    server_name {{ domain }};
+
+    root {{ hosts_directory }}/{{ domain }}/_site;
+    index index.html;
+
+    ssl_certificate {{ home_directory }}/.acme.sh/{{ domain }}/{{ domain }}.cer;
+    ssl_certificate_key {{ home_directory }}/.acme.sh/{{ domain }}/{{ domain }}.key;
+
+    if (!-f "${request_filename}index.html") {
+        rewrite ^/(.*)/$ /$1 permanent;
+    }
+
+    if ($request_uri ~* "/index.html") {
+        rewrite (?i)^(.*)index\.html$ $1 permanent;
+    }
+
+    if ($request_uri ~* ".html") {
+        rewrite (?i)^(.*)/(.*)\.html $1/$2 permanent;
+    }
+
+    error_page 404 /404.html;
+
+    location / {
+        try_files $uri $uri.html $uri/ =404;
+    }
+}

@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install packages
+    apt: "name={{ item }} update_cache=yes state=latest"
+    with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+
+  - name: Add docker repo signing key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add docker repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+      state: present
+
+  - name: Install docker itself
+    apt: "name={{ item }} update_cache=yes state=latest"
+    with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io

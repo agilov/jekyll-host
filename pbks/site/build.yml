@@ -1,0 +1,27 @@
+---
+- hosts: all
+  tasks:
+  - name: Install PIP
+    become: yes
+    apt: name=python-pip update_cache=yes state=latest
+
+  - name: Install PIP docker package
+    become: yes
+    pip:
+      name: docker
+
+  - name: Create jekyll container
+    become: yes
+    docker_container:
+      name: jekyll
+      state: present
+      image: jekyll/jekyll:3.8
+      volumes: "{{ hosts_directory }}/{{ domain }}:/srv/jekyll"
+      command: jekyll build
+
+  - name: Run jekyll build
+    become: yes
+    docker_container:
+      name: jekyll
+      state: started
+      command: jekyll build

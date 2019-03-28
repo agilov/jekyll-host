@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tasks:
+  - name: Generate deploy key
+    shell: "ssh-keygen -t rsa -N '' -C '{{ domain }} deploy key' -f {{ home_directory }}/.ssh/{{ domain }}.deploy.key"
+    args:
+      warn: no
+      creates: "{{ home_directory }}/.ssh/{{ domain }}.deploy.key"
+
+  - name: Set key 644
+    file:
+      path: "{{ home_directory }}/.ssh/{{ domain }}.deploy.key"
+      state: file
+      mode: 0600

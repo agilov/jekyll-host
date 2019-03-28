@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Purge Apache2
+    apt:
+      name: apache2
+      state: absent
+
+  - name: Install Nginx
+    apt: name=nginx update_cache=yes state=latest
+
+  - name: Configure Nginx user
+    notify: Restart Nginx
+    replace:
+      path: /etc/nginx/nginx.conf
+      regexp: "www-data"
+      replace: "ubuntu"
+
+  handlers:
+  - name: Restart Nginx
+    service:
+      name: nginx
+      state: restarted

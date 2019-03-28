@@ -1,0 +1,5 @@
+---
+- import_playbook: server/nginx.yml
+- import_playbook: server/deploy-key.yml
+- import_playbook: server/ssl.yml
+- import_playbook: server/docker.yml

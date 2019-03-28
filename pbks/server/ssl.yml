@@ -1,0 +1,29 @@
+# Read more about LetsEncrypt CA https://letsencrypt.org/
+# Read more about acme.sh https://github.com/Neilpang/acme.sh/wiki
+---
+- hosts: all
+  tasks:
+  - name: Install dependencies
+    become: yes
+    apt: "name={{ item }} update_cache=yes state=latest"
+    with_items:
+    - openssl
+    - cron
+    - netcat-openbsd
+    - curl
+
+  - name: Install acme.sh
+    shell: curl https://get.acme.sh | sh
+    args:
+      warn: no
+      creates: "{{ home_directory }}/.acme.sh"
+
+  - name: Create configuration file
+    template:
+      src: ../../templates/acme.account.conf.j2
+      dest: "{{ home_directory }}/.acme.sh/account.conf"
+
+  - name: Issue certificate
+    shell: sh {{ home_directory }}/.acme.sh/acme.sh --server {{ acme_ca }} --issue -d {{ domain }} --dns dns_cf --force --renew-hook "sudo service nginx reload"
+    args:
+      creates: "{{ home_directory }}/.acme.sh/{{ domain }}/{{ domain }}.cer"

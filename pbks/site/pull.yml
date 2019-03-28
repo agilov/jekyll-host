@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+  - name: Pull repository
+    git:
+      repo: {{ repo }}
+      version: master
+      dest: "{{ hosts_directory }}/{{ domain }}"
+      key_file: "{{ home_directory }}/.ssh/{{ domain }}.deploy.key"
+      accept_hostkey: yes
+      force: yes
